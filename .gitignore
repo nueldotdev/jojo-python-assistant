@@ -1,0 +1,4 @@
+jojoenv/
+__pycache__/
+.env
+keys.py
