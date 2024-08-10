@@ -1,4 +1,5 @@
 jojoenv/
 __pycache__/
 .env
+.venv
 keys.py
