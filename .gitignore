@@ -1,4 +1,5 @@
 jojoenv/
+jojoVenv/
 __pycache__/
 .env
 .venv

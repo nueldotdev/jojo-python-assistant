@@ -1,23 +1,17 @@
 import speech_recognition as sr
 import pyttsx3
 import pywhatkit, wikipedia
-from googlesearch.googlesearch import GoogleSearch
 
-keywords_for_play = [
-    'play', 'play me', 'start playing', 'try playing'
-]
-
-keywords_for_wiki = [
-    'who is', 'what is', 'when is'
-]
-
-keywords_for_search = [
-    'search', 'search for', 'find out', 'find'
-]
+# Keywords for different actions
+keywords_for_play = ['play', 'play me', 'start playing', 'try playing']
+keywords_for_wiki = ['who is', 'what is', 'when is']
+keywords_for_search = ['search', 'search for', 'find out', 'find']
 
 
-inital = 0
-recent_search_object = ''
+wake_word = "hey jojo"
+
+# Initialize variables
+initial = 0
 
 # Voice Reply
 engine = pyttsx3.init()
@@ -25,95 +19,88 @@ voices = engine.getProperty('voices')
 engine.setProperty('voices', voices[0].id)
 
 def speak(text):
+    """Function to make Jojo speak."""
     engine.say(text)
     engine.runAndWait()
 
 
-# listening
-def get_command():
-    global inital
-    inital += 1
-
+def listen_for_wake_word():
+    """Listen for the wake word to activate Jojo."""
     listener = sr.Recognizer()
-    try:
-        with sr.Microphone(1) as source:
-            if inital <= 1:
-                speak("It's Jojo and I'm listening!")
-                print('Listening...')
-            else:
-                speak("Didn't hear you right...")
-                speak("Please come again")
-                print('Listening...')
-            # Set a timeout for listening (adjust as needed)
-            listener.adjust_for_ambient_noise(source)
-            audio = listener.listen(source, timeout=15)
-            print('Recognizing...')
-            command = listener.recognize_google(audio)
-            print("You: " + command)
-            speak(command)
-            return command.lower()
-    except sr.UnknownValueError:
-        print('Jojo could not understand the audio')
-        run_jojo()
-    except sr.RequestError as e:
-        print(f'Request error: {e}')
-    except sr.WaitTimeoutError:
-        print('Timeout occurred, no command detected within the specified time')
-        run_jojo()
-    except Exception as e:
-        print(f'Error occurred: {e}')
+    with sr.Microphone(1) as source:
+        listener.adjust_for_ambient_noise(source)
+        audio = listener.listen(source, timeout=15)
+        try:
+            command = listener.recognize_google(audio).lower()
+            if wake_word in command:
+                return True
+        except sr.UnknownValueError:
+            pass
+        except sr.RequestError as e:
+            pass
+        except sr.WaitTimeoutError:
+            pass
+    return False
 
+def get_command():
+    """Listen for a command after the wake word is detected."""
+    listener = sr.Recognizer()
+    with sr.Microphone(1) as source:
+        listener.pause_threshold = 5  # Seconds of silence before considering the input complete
+        listener.energy_threshold = 300
 
+        speak("What can I do for you?")
+        print("Listening for command...")
+        listener.adjust_for_ambient_noise(source)
+        audio = listener.listen(source)
+        try:
+            command = listener.recognize_google(audio).lower()
+            print("You:", command)
+            return command
+        except sr.UnknownValueError:
+            print("Jojo could not understand the audio.")
+        except sr.RequestError as e:
+            print(f'Request error: {e}')
+        except sr.WaitTimeoutError:
+            print('Timeout occurred, no command detected within the specified time.')
+    return None
 
 def process_cmd(act: str, command: str, word: str):
-
+    """Process and print the command."""
     action = act + 'ing'
-
     obj = str(command).replace(word, '')
     cmd_updated = str(command).replace(word, action)
     print('Jojo: ' + cmd_updated)
     speak(action.capitalize() + " " + obj)
-
     return obj
 
-
-# Jojo gets called
 def run_jojo():
-    command = get_command()
-    command = str(command).lower()
+    """Main function to manage Jojo's operation."""
 
-    for word in keywords_for_play:
-        if word in command:
-            final = process_cmd('play', command, word)
-            pywhatkit.playonyt(str(final))
-            break
-        else:
-            pass
+    print("Waiting for wake word...")
+    while True:
+        if listen_for_wake_word():
+            command = get_command()
+            if not command:
+                continue
 
-    for word in keywords_for_wiki:
-        if word in command:
-            final = process_cmd('search', command, word)
-            result = wikipedia.summary(str(final), sentences=3)
-            print(str(result))
-            speak(str(result))
+            for word in keywords_for_play:
+                if word in command:
+                    final = process_cmd('play', command, word)
+                    pywhatkit.playonyt(str(final))
+                    break
 
-            break
-        else:
-            pass
-    
-    # elif 'who is' in command:
-    #     obj = str(command).replace('who is', '')
-    #     cmd_updated = obj + "is"
+            for word in keywords_for_wiki:
+                if word in command:
+                    final = process_cmd('search', command, word)
+                    result = wikipedia.summary(str(final), sentences=3)
+                    print(str(result))
+                    speak(str(result))
+                    break
 
-    #     print("Original: ", obj)
-    #     print("Updated: ", cmd_updated)
-        # cmd_updated = str(command).replace('who is', '')
-
-
+            # After executing the command, Jojo goes back to listening for the wake word
+            speak("Let me know if you need anything else.")
+        
 
 if __name__ == '__main__':
-    # run_jojo()
-    response = GoogleSearch().search("something")
-    for result in response.results:
-        print("Title: " + result.title)
-        print("Content: " + result.getText())
+    run_jojo()
