@@ -52,7 +52,7 @@ Example: if the entrypoint is `main.py`:
 python main.py
 ```
 
-The current prototype mainly supports opening YouTube videos. Try commands or input that include a YouTube link or a video title and see how the assistant responds. If you share the repository's entrypoint file name, I can add a concrete run example here.
+The current prototype mainly supports opening YouTube videos and searching for info on Wikipedia through the wiki-api.
 
 ## Contributing
 Contributions are welcome.
@@ -63,9 +63,4 @@ Contributions are welcome.
 - Add tests for new features when possible.
 
 Suggested labels: enhancement, bug, docs, help wanted.
-
-## Testing & CI
-There is no CI configured yet. Recommended next steps:
-- Add a basic test suite (pytest)
-- Configure GitHub Actions for linting and tests
 
