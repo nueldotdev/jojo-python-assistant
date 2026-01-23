@@ -41,15 +41,10 @@ Status: Experimental / prototype
 If there is no `requirements.txt`, inspect the repository for the main script and any imports to determine required packages.
 
 ## Running the assistant
-The repository currently contains a small prototype. Look for the main script (common names: `main.py`, `app.py`, `jojo.py`) and run it with Python:
+The repository currently contains a small prototype, run it with:
 
 ```
-python <entrypoint>.py
-```
-
-Example: if the entrypoint is `main.py`:
-```
-python main.py
+python jojo.py
 ```
 
 The current prototype mainly supports opening YouTube videos and searching for info on Wikipedia through the wiki-api.
